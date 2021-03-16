@@ -90,7 +90,7 @@ namespace Renderer
 
             #endregion
 
-            // DrawBuildings(render, boxPoints, mul(viewMatrix, projMatrix));
+            DrawBuildings(render, boxPoints, mul(viewMatrix, projMatrix));
 
 
             render.DrawPoints(spherePoints);
@@ -98,9 +98,13 @@ namespace Renderer
 
         public static void DrawBuildings(Raster raster, float3[] boxPoints, float4x4 transform)
         {
-            DrawBox(raster, boxPoints, mul(Transforms.Translate(0.2f, 0, 0.2f), transform));
-            DrawBox(raster, boxPoints, mul(Transforms.Translate(1.6f, 0, 0.2f), transform));
-            DrawBox(raster, boxPoints, mul(Transforms.Translate(1.6f, 0, 1.6f), transform));
+            DrawBox(raster, boxPoints, MakeTransform(transform, new float3(1f, 1f, 1f), new float3(1f, 1f, 1f), new float3(1f, 1f, 1f)));
+
+        }
+
+        public float4x4 MakeTransform(float4x4 transform, float3 trasl, float3 rot, float3 scal)
+        {
+            return mul(mul(mul(transform, Transforms.Rotate(rot.x, rot.y, rot.z)), Transforms.Scale(scal.x, scal.y, scal.z)), Transforms.Translate(trasl.x, trasl.y, trasl.z));
         }
 
         public static void DrawRoomTest(Raster raster)
