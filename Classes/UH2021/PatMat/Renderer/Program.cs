@@ -73,9 +73,9 @@ namespace Renderer
 
             // Creating boxy...
             spherePoints = ApplyTransform(spherePoints, float4x4(
-                1.5f, 0, 0, 0,
+                1f, 0, 0, 0,
                 0, 1f, 0, 0,
-                0, 0, 1.5f, 0,
+                0, 0, 1f, 0,
                 0, 0, 0, 1
                 ));
 

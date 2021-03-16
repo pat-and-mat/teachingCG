@@ -166,7 +166,7 @@ namespace GMath
             float sq = 1 / (sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)));
             x = x * sq * radius;
             y = y * sq * radius;
-            if (y > radius / 2)
+            if (4 * y > 3 * radius)
             {
                 return float3(0, 0, 0);
             }
