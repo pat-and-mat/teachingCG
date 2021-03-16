@@ -73,9 +73,9 @@ namespace Renderer
 
             // Creating boxy...
             spherePoints = ApplyTransform(spherePoints, float4x4(
-                1.5f, 0, 0, 0,
+                1f, 0, 0, 0,
                 0, 1f, 0, 0,
-                0, 0, 1.5f, 0,
+                0, 0, 1f, 0,
                 0, 0, 0, 1
                 ));
 
@@ -90,7 +90,7 @@ namespace Renderer
 
             #endregion
 
-            // DrawBuildings(render, boxPoints, mul(viewMatrix, projMatrix));
+            DrawBuildings(render, boxPoints, mul(viewMatrix, projMatrix));
 
 
             render.DrawPoints(spherePoints);
