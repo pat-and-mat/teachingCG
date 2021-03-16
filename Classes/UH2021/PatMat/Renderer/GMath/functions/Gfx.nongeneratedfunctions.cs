@@ -154,6 +154,27 @@ namespace GMath
             return float3(0, 0, 0); // should never occur... but compiler doesn't know...
         }
 
+        public static float3 randomInSphere(float radius)
+        {
+            float x = random() * 2 - 1, y = random() * 2 - 1, z = random() * 2 - 1;
+            while (x == y && y == z)
+            {
+                x = random() * 2 - 1;
+                y = random() * 2 - 1;
+                z = random() * 2 - 1;
+            }
+            float sq = 1 / (sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)));
+            x = x * sq * radius;
+            y = y * sq * radius;
+            if (y > radius / 2)
+            {
+                return float3(0, 0, 0);
+            }
+            z = z * sq * radius;
+
+            return float3(x, y, z);
+        }
+
         #endregion
     }
 }
