@@ -16,12 +16,12 @@ namespace Renderer
             Console.WriteLine("Done.");
         }
 
-        public static float3[] RandomPositionsInSphereSurface(int N)
+        public static float3[] RandomPositionsInSphereSurface(int N, float radius, float2 proportion)
         {
             float3[] points = new float3[N];
 
             for (int i = 0; i < N; i++)
-                points[i] = randomInSphere(2f);
+                points[i] = randomInSphere(radius, proportion);
 
             return points;
         }
@@ -65,26 +65,29 @@ namespace Renderer
 
         private static void FreeTransformTest(Raster render)
         {
-            render.ClearRT(float4(0, 0, 0.2f, 1)); // clear with color dark blue.
+            render.ClearRT(float4(0, 0, 0f, 1)); // clear with color dark blue.
 
             int N = 100000;
             // Create buffer with points to render
-            float3[] spherePoints = RandomPositionsInSphereSurface(N);
+            float3[] spherePoints = RandomPositionsInSphereSurface(N, 2.5f, float2(4, 3));
+            float3[] waterPoints = RandomPositionsInSphereSurface(N, 2.3f, float2(3, -1));
 
-            // Creating boxy...
-            spherePoints = ApplyTransform(spherePoints, float4x4(
-                1f, 0, 0, 0,
-                0, 1f, 0, 0,
-                0, 0, 1f, 0,
-                0, 0, 0, 1
-                ));
+            // spherePoints = ApplyTransform(spherePoints, float4x4(
+            //     1.5f, 0, 0, 0,
+            //     0, 1f, 0, 0,
+            //     0, 0, 1.5f, 0,
+            //     0, 0, 0, 1
+            //     ));
 
-            float3[] boxPoints = RandomPositionsInBoxSurface(N);
+            float3[] boxPoints = RandomPositionsInBoxSurface(5 * N);
 
             #region viewing and projecting
 
             spherePoints = ApplyTransform(spherePoints, Transforms.LookAtLH(float3(5f, 2.6f, 4), float3(0, 0, 0), float3(0, 1, 0)));
             spherePoints = ApplyTransform(spherePoints, Transforms.PerspectiveFovLH(pi_over_4, render.RenderTarget.Height / (float)render.RenderTarget.Width, 0.01f, 10));
+            waterPoints = ApplyTransform(waterPoints, Transforms.LookAtLH(float3(5f, 2.6f, 4), float3(0, 0, 0), float3(0, 1, 0)));
+            waterPoints = ApplyTransform(waterPoints, Transforms.PerspectiveFovLH(pi_over_4, render.RenderTarget.Height / (float)render.RenderTarget.Width, 0.01f, 10));
+
             float4x4 viewMatrix = Transforms.LookAtLH(float3(5f, 4.6f, 2), float3(0, 0, 0), float3(0, 1, 0));
             float4x4 projMatrix = Transforms.PerspectiveFovLH(pi_over_4, render.RenderTarget.Height / (float)render.RenderTarget.Width, 0.01f, 10);
 
@@ -93,19 +96,21 @@ namespace Renderer
             DrawBuildings(render, boxPoints, mul(viewMatrix, projMatrix));
 
 
-            render.DrawPoints(spherePoints);
+            render.DrawPoints(spherePoints, float4(1f, 1f, 1f, 0.9f));
+            render.DrawPoints(waterPoints, float4(0f, 0.3f, 0.5f, 0.9f));
         }
 
         public static void DrawBuildings(Raster raster, float3[] boxPoints, float4x4 transform)
         {
-            DrawBox(raster, boxPoints, MakeTransform(transform, new float3(1f, 1f, 1f), new float3(1f, 1f, 1f), new float3(1f, 1f, 1f)));
+            DrawBox(raster, boxPoints, mul(mul(mul(Transforms.Scale(0.2f, 1.4f, 0.6f), Transforms.Translate(0.2f, -0.7f, 0.2f)), Transforms.RotateRespectTo(float3(0, 0, 0), float3(-0.2f, 0, 0.4f), pi / 6)), transform));
+            DrawBox(raster, boxPoints, mul(mul(mul(Transforms.Scale(0.3f, 0.2f, 0.3f), Transforms.Translate(1f, -0.7f, 1f)), Transforms.RotateRespectTo(float3(0, 0, 0), float3(-0.2f, 0, 0.4f), pi / 6)), transform));
+            DrawBox(raster, boxPoints, mul(mul(mul(Transforms.Scale(0.3f, 1.9f, 0.1f), Transforms.Translate(1.5f, -0.7f, -1f)), Transforms.RotateRespectTo(float3(0, 0, 0), float3(-0.2f, 0, 0.4f), pi / 6)), transform));
+            DrawBox(raster, boxPoints, mul(mul(mul(Transforms.Scale(0.4f, 1.7f, 0.7f), Transforms.Translate(1.2f, -0.7f, -0.4f)), Transforms.RotateRespectTo(float3(0, 0, 0), float3(-0.2f, 0.2f, 0.4f), pi / 6)), transform));
+            DrawBox(raster, boxPoints, mul(mul(mul(Transforms.Scale(0.2f, 2.3f, 0.6f), Transforms.Translate(0.3f, -0.7f, 1.3f)), Transforms.RotateRespectTo(float3(0, 0, 0), float3(-0.2f, 0, 0.4f), pi / 6)), transform));
 
         }
 
-        public float4x4 MakeTransform(float4x4 transform, float3 trasl, float3 rot, float3 scal)
-        {
-            return mul(mul(mul(transform, Transforms.Rotate(rot.x, rot.y, rot.z)), Transforms.Scale(scal.x, scal.y, scal.z)), Transforms.Translate(trasl.x, trasl.y, trasl.z));
-        }
+
 
         public static void DrawRoomTest(Raster raster)
         {
